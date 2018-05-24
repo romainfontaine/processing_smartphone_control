@@ -17,12 +17,12 @@ public class Agent6 extends Agent {
   // Override pollFeed() to implement Space Navigator node picking.
   @Override
   public MotionEvent6 handleFeed() {
-    return new MotionEvent6(s[0]*translation.x,
-                            s[1]*translation.y,
-                            s[2]*translation.z,
-                            s[3]*rotation.x,
-                            s[4]*rotation.y,
-                            -s[5]*rotation.z,
+    return new MotionEvent6(s[0]*sc.getTranslation().x,
+                            s[1]*sc.getTranslation().y,
+                            s[2]*sc.getTranslation().z,
+                            s[3]*sc.getRotation().x,
+                            s[4]*sc.getRotation().y,
+                            -s[5]*sc.getRotation().z,
                             frames.input.Event.NO_MODIFIER_MASK, SN_ID);
   }
 }
