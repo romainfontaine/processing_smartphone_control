@@ -1,0 +1,47 @@
+<script>
+var s = new WebSocket("ws://"+window.location.hostname+":8080/");
+var opened = false;
+s.onopen = function (event) {
+  opened = true 
+};
+window.addEventListener("devicemotion", handleMotion, true);
+var alpha = null;
+var beta = null;
+var gamma = null;
+var x = null;
+var y = null;
+var z = null;
+function handleMotion(event) {
+  x = event.acceleration.x;
+  y = event.acceleration.y;
+  z = event.acceleration.z;
+  alpha = event.rotationRate.alpha;
+  beta = event.rotationRate.beta;
+  gamma = event.rotationRate.gamma;
+}
+var r = false;
+var t = false;
+function rotate_(){
+if(t)
+	return;
+r = !r;
+}
+function translate_(){
+if(r)
+	return;
+t = !t;
+}
+setInterval(interval, 1000/40)
+function interval(){
+	if(opened && (r || t))
+		s.send(r?"r"+alpha+" "+beta+" "+gamma:"t"+x+" "+y+" "+z);
+}
+/*
+  function fn(){
+    console.log("mov")
+  	socket.emit("movement", {"abc":"def"})
+  }
+  */
+</script>
+<div onclick="rotate_()" style="height:50%;width:100%;background-color:#00F;">Rotate</div>
+<div onclick="translate_()"  style="height:50%;width:100%;background-color:#F00;">Translate</div>
