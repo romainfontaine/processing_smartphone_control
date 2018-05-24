@@ -41,6 +41,7 @@ class SmartphoneControl {
       }
     }
     catch(NumberFormatException e) {
+      println("Error while parsing '"+msg+"'");
       return;
     }
     if (r) {

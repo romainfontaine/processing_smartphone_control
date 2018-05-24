@@ -1,47 +1,72 @@
+<div id="btn_rot" onclick="rotate_()" style="height:50%;width:100%;background-color:#00F;">Rotate</div>
+<div id="btn_tra" onclick="translate_()"  style="height:50%;width:100%;background-color:#F00;">Translate</div>
+<div id="btn_connect" onclick="openWS()"  style="height:100%;width:100%;background-color:#0F0;">Connect</div>
 <script>
-var s = new WebSocket("ws://"+window.location.hostname+":8080/");
-var opened = false;
-s.onopen = function (event) {
-  opened = true 
-};
-window.addEventListener("devicemotion", handleMotion, true);
-var alpha = null;
-var beta = null;
-var gamma = null;
-var x = null;
-var y = null;
-var z = null;
-function handleMotion(event) {
-  x = event.acceleration.x;
-  y = event.acceleration.y;
-  z = event.acceleration.z;
-  alpha = event.rotationRate.alpha;
-  beta = event.rotationRate.beta;
-  gamma = event.rotationRate.gamma;
-}
-var r = false;
-var t = false;
-function rotate_(){
-if(t)
-	return;
-r = !r;
-}
-function translate_(){
-if(r)
-	return;
-t = !t;
-}
-setInterval(interval, 1000/40)
-function interval(){
-	if(opened && (r || t))
-		s.send(r?"r"+alpha+" "+beta+" "+gamma:"t"+x+" "+y+" "+z);
-}
-/*
-  function fn(){
-    console.log("mov")
-  	socket.emit("movement", {"abc":"def"})
-  }
-  */
+    var UPDATES_PER_SECOND = 40, WS_PORT = 8080;
+    var s;
+    var opened;
+
+    function setStateOpen(){
+        opened = true
+        document.getElementById("btn_rot").style.display="block";
+        document.getElementById("btn_tra").style.display="block";
+        document.getElementById("btn_connect").style.display="none";
+    }
+
+    function setStateClosed(){
+        opened = false
+        document.getElementById("btn_rot").style.display="none";
+        document.getElementById("btn_tra").style.display="none";
+        document.getElementById("btn_connect").style.display="block";
+    }
+
+    function openWS(){
+        setStateClosed();
+        s = new WebSocket("ws://"+window.location.hostname+":"+WS_PORT+"/");
+        s.onopen = function (event) {
+            setStateOpen()
+        };
+        s.onclose = function(event){
+            setStateClosed()
+        }
+        s.onerror = function(event){
+            setStateClosed()
+        }
+    }
+
+    openWS();
+
+    window.addEventListener("devicemotion", handleMotion, true);
+    var alpha = null;
+    var beta = null;
+    var gamma = null;
+    var x = null;
+    var y = null;
+    var z = null;
+    function handleMotion(event) {
+        x = event.acceleration.x;
+        y = event.acceleration.y;
+        z = event.acceleration.z;
+        alpha = event.rotationRate.alpha;
+        beta = event.rotationRate.beta;
+        gamma = event.rotationRate.gamma;
+    }
+    var r = false;
+    var t = false;
+    function rotate_(){
+        if(t)
+            return;
+        r = !r;
+    }
+    function translate_(){
+        if(r)
+            return;
+        t = !t;
+    }
+    setInterval(interval, 1000/UPDATES_PER_SECOND)
+
+    function interval(){
+        if(opened && (r || t))
+            s.send(r?"r"+alpha+" "+beta+" "+gamma:"t"+x+" "+y+" "+z);
+    }
 </script>
-<div onclick="rotate_()" style="height:50%;width:100%;background-color:#00F;">Rotate</div>
-<div onclick="translate_()"  style="height:50%;width:100%;background-color:#F00;">Translate</div>
