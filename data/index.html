@@ -1,122 +1,134 @@
 <html>
+
 <head>
     <style>
-        .button{
+        .button {
             display: flex;
             justify-content: center;
             align-content: center;
             flex-direction: column;
             font-size: 6em;
             text-align: center;
-            height:33%;
-            width:100%;
+            height: 33%;
+            width: 100%;
         }
     </style>
 </head>
+
 <body>
 
-<div id="btn_sel" class="button" onclick="select()" style="background-color:#f1c40f;">Selection</div>
-<div id="btn_rot" class="button"  onclick="rotate_()" style="background-color:#2980b9;">Rotation</div>
-<div id="btn_tra" class="button" onclick="translate_()"  style="background-color:#e74c3c;">Translation</div>
-<div id="btn_connect" class="button" onclick="openWS()"  style="height:100%;background-color:#2ecc71;">Connect!</div>
-<script>
-    var UPDATES_PER_SECOND = 40, WS_PORT = 8080;
-    var s;
-    var opened;
+    <div id="btn_sel" class="button" onclick="select()" style="background-color:#f1c40f;">Selection</div>
+    <div id="btn_rot" class="button" onclick="rotate_()" style="background-color:#2980b9;">Rotation</div>
+    <div id="btn_tra" class="button" onclick="translate_()" style="background-color:#e74c3c;">Translation</div>
+    <div id="btn_connect" class="button" onclick="openWS()" style="height:100%;background-color:#2ecc71;">Connect!</div>
+    <script>
+        var UPDATES_PER_SECOND = 40,
+            WS_PORT = 8080;
+        var s;
+        var opened;
 
-    function setStateOpen(){
-        initializeCursor();
-        opened = true
-        document.getElementById("btn_rot").style.display="flex";
-        document.getElementById("btn_tra").style.display="flex";
-        document.getElementById("btn_sel").style.display="flex";
-        document.getElementById("btn_connect").style.display="none";
-    }
-
-    function setStateClosed(){
-        opened = false
-        document.getElementById("btn_rot").style.display="none";
-        document.getElementById("btn_tra").style.display="none";
-        document.getElementById("btn_sel").style.display="none";
-        document.getElementById("btn_connect").style.display="flex";
-    }
-
-    function openWS(){
-        setStateClosed();
-        s = new WebSocket("ws://"+window.location.hostname+":"+WS_PORT+"/");
-        s.onopen = function (event) {
-            setStateOpen()
-        };
-        s.onclose = function(event){
-            setStateClosed()
+        function setStateOpen() {
+            initializeCursor();
+            opened = true
+            document.getElementById("btn_rot").style.display = "flex";
+            document.getElementById("btn_tra").style.display = "flex";
+            document.getElementById("btn_sel").style.display = "flex";
+            document.getElementById("btn_connect").style.display = "none";
         }
-        s.onerror = function(event){
-            setStateClosed()
+
+        function setStateClosed() {
+            opened = false
+            document.getElementById("btn_rot").style.display = "none";
+            document.getElementById("btn_tra").style.display = "none";
+            document.getElementById("btn_sel").style.display = "none";
+            document.getElementById("btn_connect").style.display = "flex";
         }
-    }
 
-    function select(){
-        if(opened)
-            s.send("s")
-    }
-
-    function initializeCursor(){
-        cursor = {vx: 0, vy:0, px:0, py:0};
-    }
-
-    openWS();
-
-    var cursor = null;
-    initializeCursor();
-
-    window.addEventListener("devicemotion", handleMotion, true);
-    var alpha = null;
-    var beta = null;
-    var gamma = null;
-    var x = null;
-    var y = null;
-    var z = null;
-    function handleMotion(event) {
-        x = event.acceleration.x;
-        y = event.acceleration.y;
-        z = event.acceleration.z;
-        alpha = event.rotationRate.alpha;
-        beta = event.rotationRate.beta;
-        gamma = event.rotationRate.gamma;
-
-        cursor.vx *=.5
-        cursor.vy *=.5
-        cursor.vx += beta
-        cursor.vy += alpha
-        cursor.px += cursor.vx
-        cursor.py += cursor.vy
-
-    }
-    var r = false;
-    var t = false;
-    function rotate_(){
-        if(t)
-            return;
-        initializeCursor();
-        r = !r;
-    }
-    function translate_(){
-        if(r)
-            return;
-        initializeCursor();
-        t = !t;
-    }
-    setInterval(interval, 1000/UPDATES_PER_SECOND)
-
-    function interval(){
-        if(opened && r)
-            s.send("r"+alpha+" "+beta+" "+gamma);
-        else if(opened && t)
-            s.send("t"+cursor.vx+" "+cursor.vy);
-        else if(opened){
-            s.send("c"+cursor.px+" "+cursor.py)
+        function openWS() {
+            setStateClosed();
+            s = new WebSocket("ws://" + window.location.hostname + ":" + WS_PORT + "/");
+            s.onopen = function(event) {
+                setStateOpen()
+            };
+            s.onclose = function(event) {
+                setStateClosed()
+            }
+            s.onerror = function(event) {
+                setStateClosed()
+            }
         }
-    }
-</script>
+
+        function select() {
+            if (opened)
+                s.send("s")
+        }
+
+        function initializeCursor() {
+            cursor = {
+                vx: 0,
+                vy: 0,
+                px: 0,
+                py: 0
+            };
+        }
+
+        openWS();
+
+        var cursor = null;
+        initializeCursor();
+
+        window.addEventListener("devicemotion", handleMotion, true);
+        var alpha = null;
+        var beta = null;
+        var gamma = null;
+        var x = null;
+        var y = null;
+        var z = null;
+
+        function handleMotion(event) {
+            x = event.acceleration.x;
+            y = event.acceleration.y;
+            z = event.acceleration.z;
+            alpha = event.rotationRate.alpha;
+            beta = event.rotationRate.beta;
+            gamma = event.rotationRate.gamma;
+
+            cursor.vx *= .5
+            cursor.vy *= .5
+            cursor.vx += beta
+            cursor.vy += alpha
+            cursor.px += cursor.vx
+            cursor.py += cursor.vy
+
+        }
+        var r = false;
+        var t = false;
+
+        function rotate_() {
+            if (t)
+                return;
+            initializeCursor();
+            r = !r;
+        }
+
+        function translate_() {
+            if (r)
+                return;
+            initializeCursor();
+            t = !t;
+        }
+        setInterval(interval, 1000 / UPDATES_PER_SECOND)
+
+        function interval() {
+            if (opened && r)
+                s.send("r" + alpha + " " + beta + " " + gamma);
+            else if (opened && t)
+                s.send("t" + cursor.vx + " " + cursor.vy);
+            else if (opened) {
+                s.send("c" + cursor.px + " " + cursor.py)
+            }
+        }
+    </script>
 </body>
+
 </html>
