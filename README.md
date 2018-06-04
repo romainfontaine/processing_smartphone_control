@@ -9,7 +9,7 @@ The goal of this assignment is to provide a new way to **interact** with the [fr
 
 The user should be able to interact with a **scene**, i.e. rotating and translating the viewpoint as well as the objects that compose the scene. In order to do so, the user must be able to **select** objects.
 ## Implementation
-This project has been implemented using the latest developpement version of [framesjs](https://github.com/VisualComputing/framesjs) (on June 4th 2018). The smartphone side is based on JavaScript and HTML, for a basic user interface, accessing the phone's sensors' outputs, and communicating through [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API).
+This project has been implemented using the latest developpement version of [framesjs](https://github.com/VisualComputing/framesjs) (Available on June 4th 2018). The smartphone side is based on JavaScript and HTML, for a basic user interface, accessing the phone's sensors' outputs, and communicating through [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API).
 This simple webpage is served through a TCP Socket thanks to [Processing's Network Library](https://processing.org/reference/libraries/net/index.html).
 
 The client side can be seen as a Finite State Automaton, with the four following states: 
@@ -34,7 +34,7 @@ The communication protocol is only one way with the WebSockets, for simplicity. 
 
 The selection is performed regarding the cursors coordinates thanks to the framesjs library. It uses another buffer in order uniquely identify the object pointed by the cursor.
 
-In order to make the translations and rotations more intuitive, it is needed to invert the movements (i.e. multiply by -1 every component).
+In order to make the translations and rotations more intuitive, it is needed to invert the movements (i.e. multiply by -1 every component) when the camera is moved, in opposition to the objects' movements.
 
 This proof-of-concept is based on Jean Pierre Charalambos' [example for the Space Navigator](https://github.com/VisualComputing/framesjs/blob/geom/testing/src/basics/SpaceNavigator1.java).
 
