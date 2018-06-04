@@ -12,6 +12,7 @@ class SmartphoneControl {
 
   PVector rotation = new PVector();
   PVector translation = new PVector();
+  PVector cursor = new PVector();
   PVector zeroVector = new PVector();
 
   boolean translationToDo = false, rotationToDo = false;
@@ -26,17 +27,23 @@ class SmartphoneControl {
 
   public PVector getTranslation() {
     return translationToDo?translation:zeroVector;
+  }  
+  public PVector getCursor() {
+    return cursor;
   }
   public PVector getRotation() {
     return rotationToDo?rotation:zeroVector;
   }
 
   public void webSocketServerEvent(String msg) {
+    println(msg);
     boolean r = msg.charAt(0)=='r'; 
+    boolean c = msg.charAt(0)=='c'; 
+    boolean t = msg.charAt(0)=='t'; 
     String[] split = msg.substring(1).split(" ");
-    float[] a = new float[3];
+    float[] a = new float[split.length];
     try {
-      for (int i = 0; i<3; i++) {
+      for (int i = 0; i<split.length; i++) {
         a[i] = Float.valueOf(split[i]);
       }
     }
@@ -49,11 +56,14 @@ class SmartphoneControl {
       rotation.y = a[1];
       rotation.z = a[2];
       rotationToDo = true;
-    } else {
+    } else if (t) {
       translation.x = a[0];
       translation.y = a[1];
       translation.z = a[2];
       translationToDo = true;
+    } else if (c) {
+      cursor.x = a[0];
+      cursor.y = a[1];
     }
   }
 

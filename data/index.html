@@ -36,6 +36,8 @@
 
     openWS();
 
+    var cursor = {vx: 0, vy:0, px:0, py:0}
+
     window.addEventListener("devicemotion", handleMotion, true);
     var alpha = null;
     var beta = null;
@@ -50,6 +52,14 @@
         alpha = event.rotationRate.alpha;
         beta = event.rotationRate.beta;
         gamma = event.rotationRate.gamma;
+
+        cursor.vx *=.5
+        cursor.vy *=.5
+        cursor.vx += beta
+        cursor.vy += alpha
+        cursor.px += cursor.vx
+        cursor.py += cursor.vy
+
     }
     var r = false;
     var t = false;
@@ -66,7 +76,12 @@
     setInterval(interval, 1000/UPDATES_PER_SECOND)
 
     function interval(){
-        if(opened && (r || t))
-            s.send(r?"r"+alpha+" "+beta+" "+gamma:"t"+x+" "+y+" "+z);
+        if(opened && r)
+            s.send("r"+alpha+" "+beta+" "+gamma);
+        else if(opened && t)
+            s.send("t"+x+" "+y+" "+z);
+        else if(opened){
+            s.send("c"+cursor.px+" "+cursor.py)
+        }
     }
 </script>
