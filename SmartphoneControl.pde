@@ -15,7 +15,7 @@ class SmartphoneControl {
   PVector cursor = new PVector();
   PVector zeroVector = new PVector();
 
-  boolean translationToDo = false, rotationToDo = false;
+  boolean translationToDo = false, rotationToDo = false, selectionToDo = false;
 
   public SmartphoneControl(PApplet parent) {
     this(parent, 8000, 8080);
@@ -34,12 +34,22 @@ class SmartphoneControl {
   public PVector getRotation() {
     return rotationToDo?rotation:zeroVector;
   }
+  public boolean getSelection(){
+     boolean prev = this.selectionToDo;
+     this.selectionToDo = false;
+     return prev;
+  }
 
   public void webSocketServerEvent(String msg) {
     println(msg);
     boolean r = msg.charAt(0)=='r'; 
     boolean c = msg.charAt(0)=='c'; 
     boolean t = msg.charAt(0)=='t'; 
+    boolean s = msg.charAt(0)=='s';
+    if (s) {
+      this.selectionToDo = true;
+      return;
+    }
     String[] split = msg.substring(1).split(" ");
     float[] a = new float[split.length];
     try {
@@ -59,7 +69,6 @@ class SmartphoneControl {
     } else if (t) {
       translation.x = a[0];
       translation.y = a[1];
-      translation.z = a[2];
       translationToDo = true;
     } else if (c) {
       cursor.x = a[0];

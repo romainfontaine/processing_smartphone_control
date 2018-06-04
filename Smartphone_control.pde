@@ -5,8 +5,6 @@ import processing.core.PApplet;
 import processing.core.PShape;
 import processing.event.MouseEvent;
 
-
-
 // frames stuff:
 Scene scene;
 Shape[] shapes;
@@ -48,18 +46,27 @@ void draw() {
   sc.serveWebPage();
   background(0);
   scene.drawAxes();
-  if (snPicking)
+  if (snPicking) {
     spaceNavigatorPicking();
-  else {
-    scene.castOnMouseMove();
     spaceNavigatorInteraction();
+  } else {
+    scene.castOnMouseMove();
   }
   sc.clearValues();
 }
 
 void spaceNavigatorInteraction() {
-  //println(snXRot.getValue());
-  //scene.rotate(snXRot.getValue() * 10 * PI / width, 0, 0, snTrackedFrame);
+  float rotationScale = .1, translationScale = -10;
+  if (snTrackedFrame != scene.eye()) {
+    rotationScale*=-1;
+    translationScale*=-1;
+  }
+  scene.rotate(sc.getRotation().x * rotationScale, 
+    sc.getRotation().y*rotationScale, 
+    sc.getRotation().z * rotationScale, snTrackedFrame);
+  scene.translate(sc.getTranslation().x * translationScale, 
+    sc.getTranslation().y * translationScale, 
+    0, snTrackedFrame);
 }
 
 void spaceNavigatorPicking() {
@@ -67,7 +74,9 @@ void spaceNavigatorPicking() {
   float y = map(sc.getCursor().y, -90, 90, 0, height);
   // frames' drawing + space navigator picking
   Frame frame = scene.cast(x, y);
-  snTrackedFrame = frame == null ? scene.eye() : frame;
+  if (sc.getSelection()) {
+    snTrackedFrame = frame == null ? scene.eye() : frame;
+  }
   // draw picking visual hint
   pushStyle();
   strokeWeight(3);

@@ -1,15 +1,35 @@
-<div id="btn_rot" onclick="rotate_()" style="height:50%;width:100%;background-color:#00F;">Rotate</div>
-<div id="btn_tra" onclick="translate_()"  style="height:50%;width:100%;background-color:#F00;">Translate</div>
-<div id="btn_connect" onclick="openWS()"  style="height:100%;width:100%;background-color:#0F0;">Connect</div>
+<html>
+<head>
+    <style>
+        .button{
+            display: flex;
+            justify-content: center;
+            align-content: center;
+            flex-direction: column;
+            font-size: 6em;
+            text-align: center;
+            height:33%;
+            width:100%;
+        }
+    </style>
+</head>
+<body>
+
+<div id="btn_sel" class="button" onclick="select()" style="background-color:#f1c40f;">Selection</div>
+<div id="btn_rot" class="button"  onclick="rotate_()" style="background-color:#2980b9;">Rotation</div>
+<div id="btn_tra" class="button" onclick="translate_()"  style="background-color:#e74c3c;">Translation</div>
+<div id="btn_connect" class="button" onclick="openWS()"  style="height:100%;background-color:#2ecc71;">Connect!</div>
 <script>
     var UPDATES_PER_SECOND = 40, WS_PORT = 8080;
     var s;
     var opened;
 
     function setStateOpen(){
+        initializeCursor();
         opened = true
-        document.getElementById("btn_rot").style.display="block";
-        document.getElementById("btn_tra").style.display="block";
+        document.getElementById("btn_rot").style.display="flex";
+        document.getElementById("btn_tra").style.display="flex";
+        document.getElementById("btn_sel").style.display="flex";
         document.getElementById("btn_connect").style.display="none";
     }
 
@@ -17,7 +37,8 @@
         opened = false
         document.getElementById("btn_rot").style.display="none";
         document.getElementById("btn_tra").style.display="none";
-        document.getElementById("btn_connect").style.display="block";
+        document.getElementById("btn_sel").style.display="none";
+        document.getElementById("btn_connect").style.display="flex";
     }
 
     function openWS(){
@@ -34,9 +55,19 @@
         }
     }
 
+    function select(){
+        if(opened)
+            s.send("s")
+    }
+
+    function initializeCursor(){
+        cursor = {vx: 0, vy:0, px:0, py:0};
+    }
+
     openWS();
 
-    var cursor = {vx: 0, vy:0, px:0, py:0}
+    var cursor = null;
+    initializeCursor();
 
     window.addEventListener("devicemotion", handleMotion, true);
     var alpha = null;
@@ -66,11 +97,13 @@
     function rotate_(){
         if(t)
             return;
+        initializeCursor();
         r = !r;
     }
     function translate_(){
         if(r)
             return;
+        initializeCursor();
         t = !t;
     }
     setInterval(interval, 1000/UPDATES_PER_SECOND)
@@ -79,9 +112,11 @@
         if(opened && r)
             s.send("r"+alpha+" "+beta+" "+gamma);
         else if(opened && t)
-            s.send("t"+x+" "+y+" "+z);
+            s.send("t"+cursor.vx+" "+cursor.vy);
         else if(opened){
             s.send("c"+cursor.px+" "+cursor.py)
         }
     }
 </script>
+</body>
+</html>
