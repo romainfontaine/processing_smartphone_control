@@ -21,8 +21,13 @@ class SmartphoneControl {
     this(parent, 8000, 8080);
   }
   public SmartphoneControl(PApplet parent, int httpPort, int websocketPort) {
+    port = httpPort;
     httpServer = new Server(parent, httpPort);
     wsServer= new WebsocketServer(parent, websocketPort, "/");
+  }
+  
+  public int getHTTPPort(){
+     return port;
   }
 
   public PVector getTranslation() {
@@ -34,14 +39,13 @@ class SmartphoneControl {
   public PVector getRotation() {
     return rotationToDo?rotation:zeroVector;
   }
-  public boolean getSelection(){
-     boolean prev = this.selectionToDo;
-     this.selectionToDo = false;
-     return prev;
+  public boolean getSelection() {
+    boolean prev = this.selectionToDo;
+    this.selectionToDo = false;
+    return prev;
   }
 
   public void webSocketServerEvent(String msg) {
-    println(msg);
     boolean r = msg.charAt(0)=='r'; 
     boolean c = msg.charAt(0)=='c'; 
     boolean t = msg.charAt(0)=='t'; 
@@ -91,18 +95,24 @@ class SmartphoneControl {
     translationToDo = false;
   }
 
-  public void printMyIps() {
+  public ArrayList<String> getMyIps() {
+    ArrayList<String> r = new ArrayList<String>();
     try {
       Enumeration e = NetworkInterface.getNetworkInterfaces();
       while (e.hasMoreElements())
       {
         NetworkInterface n = (NetworkInterface) e.nextElement();
         Enumeration ee = n.getInetAddresses();
-        while (ee.hasMoreElements())
-          println(((InetAddress) ee.nextElement()).getHostAddress());
+        while (ee.hasMoreElements()) {
+          InetAddress ia = (InetAddress) ee.nextElement();
+          if (ia instanceof Inet4Address) {
+            r.add(ia.getHostAddress());
+          }
+        }
       }
     }
     catch(SocketException e) {
     }
+    return r;
   }
 }

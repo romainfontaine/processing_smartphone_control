@@ -9,7 +9,6 @@ import processing.event.MouseEvent;
 Scene scene;
 Shape[] shapes;
 Frame snTrackedFrame;
-boolean snPicking = true;
 SmartphoneControl sc = new SmartphoneControl(this);
 
 void settings() {
@@ -17,7 +16,6 @@ void settings() {
 }
 
 void setup() {
-  sc.printMyIps();
   scene = new Scene(this);
   scene.setFieldOfView(PI / 3);
   //scene.setType(Graph.Type.ORTHOGRAPHIC);
@@ -44,14 +42,21 @@ PShape shape() {
 
 void draw() {
   sc.serveWebPage();
-  background(0);
-  scene.drawAxes();
-  if (snPicking) {
-    spaceNavigatorPicking();
-    spaceNavigatorInteraction();
-  } else {
-    scene.castOnMouseMove();
+  ArrayList<String> ips = sc.getMyIps();
+  String s = "Available IP addresses:\n";
+  for (String i : ips) {
+    s+="- "+i+":"+sc.getHTTPPort()+"\n";
   }
+
+  background(0);
+  scene.beginScreenDrawing();
+  textSize(24);
+  text(s, 50, 50);
+  scene.endScreenDrawing();
+  scene.drawAxes();
+  spaceNavigatorPicking();
+  spaceNavigatorInteraction();
+  scene.castOnMouseMove();
   sc.clearValues();
 }
 
@@ -74,9 +79,8 @@ void spaceNavigatorPicking() {
   float y = map(sc.getCursor().y, -90, 90, 0, height);
   // frames' drawing + space navigator picking
   Frame frame = scene.cast(x, y);
-  if (sc.getSelection()) {
+  if (sc.getSelection())
     snTrackedFrame = frame == null ? scene.eye() : frame;
-  }
   // draw picking visual hint
   pushStyle();
   strokeWeight(3);
@@ -88,6 +92,7 @@ void spaceNavigatorPicking() {
 void webSocketServerEvent(String msg) {
   sc.webSocketServerEvent(msg);
 }
+
 void mouseDragged() {
   if (mouseButton == LEFT)
     scene.mouseSpin();
@@ -99,14 +104,4 @@ void mouseDragged() {
 
 void mouseWheel(MouseEvent event) {
   scene.zoom(event.getCount() * 20);
-}
-
-void keyPressed() {
-  if (key == 'r')
-    scene.setRightHanded();
-  if (key == 'l')
-    scene.setLeftHanded();
-  // define the tracking device
-  if (key == 'i')
-    snPicking = !snPicking;
 }

@@ -86,9 +86,6 @@
         var z = null;
 
         function handleMotion(event) {
-            x = event.acceleration.x;
-            y = event.acceleration.y;
-            z = event.acceleration.z;
             alpha = event.rotationRate.alpha;
             beta = event.rotationRate.beta;
             gamma = event.rotationRate.gamma;
@@ -121,11 +118,11 @@
 
         function interval() {
             if (opened && r)
-                s.send("r" + alpha + " " + beta + " " + gamma);
+                s.send("r" + alpha.toFixed(2) + " " + beta.toFixed(2) + " " + gamma.toFixed(2));
             else if (opened && t)
-                s.send("t" + cursor.vx + " " + cursor.vy);
+                s.send("t" + cursor.vx.toFixed(2) + " " + cursor.vy.toFixed(2));
             else if (opened) {
-                s.send("c" + cursor.px + " " + cursor.py)
+                s.send("c" + cursor.px.toFixed(2) + " " + cursor.py.toFixed(2))
             }
         }
     </script>
